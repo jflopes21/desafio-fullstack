@@ -1,5 +1,5 @@
 import { ThemeProvider } from "@/components/theme-provider";
-import { PlusCircle, Plus, X, Pencil } from "lucide-react";
+import { PlusCircle, Plus, Pencil } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -14,7 +14,6 @@ import { ModeToggle } from "./components/mode-toggle";
 import { useEffect, useState } from "react";
 import { EditLevelDialog } from "./components/edit-level-dialog";
 import { CreateLevelDialog } from "./components/create-level-dialog";
-import { SearchDevelopers } from "./components/search-developers";
 import { CreateDeveloperDialog } from "./components/create-developer-dialog";
 import { EditDeveloper } from "./components/edit-developer-dialog";
 
@@ -28,12 +27,16 @@ interface Developer {
   hobby: string;
 }
 
+interface Level {
+  id: string;
+  nivel: string;
+}
+
 export function App() {
   const [developers, setDevelopers] = useState<Developer[]>([]);
-  const [shouldFetchDevelopers, setShouldFetchDevelopers] = useState(true);
-
+  const [tableState, setTableState] = useState<boolean>(true);
   useEffect(() => {
-    if (shouldFetchDevelopers) {
+    if (tableState) {
       const url = new URL("http://localhost:3333/api/desenvolvedores");
       fetch(url)
         .then((response) => response.json())
@@ -44,10 +47,24 @@ export function App() {
               idade: calculateAge(developer.datanascimento),
             }))
           );
-          setShouldFetchDevelopers(false);
+          setTableState(false);
         });
     }
-  }, [shouldFetchDevelopers]);
+  }, [tableState]);
+
+  const [levels, setLevels] = useState<Level[]>([]);
+  const [shouldFetchLevels, setShouldFetchLevels] = useState(true);
+    useEffect(() => {
+      if (shouldFetchLevels) {
+        const url = new URL("http://localhost:3333/api/niveis");
+        fetch(url)
+          .then((response) => response.json())
+          .then((data) => {
+            setLevels(data);
+            setShouldFetchLevels(false);
+          });
+      }
+    }, [shouldFetchLevels]);
 
   const calculateAge = (dateOfBirth: string): number => {
     const today = new Date();
@@ -73,7 +90,7 @@ export function App() {
         </div>
         <h1 className="text-3xl font-bold">Desenvolvedores</h1>
         <div className="flex items-center justify-between">
-          <SearchDevelopers />
+          {/* <SearchDevelopers /> */}
           <div className="flex items-center gap-2">
             <Dialog>
               <DialogTrigger asChild>
@@ -82,7 +99,7 @@ export function App() {
                   Alterar Nível
                 </Button>
               </DialogTrigger>
-              <EditLevelDialog />
+              <EditLevelDialog setState={setTableState} setLevelState={setShouldFetchLevels} levels={levels} />
             </Dialog>
 
             <Dialog>
@@ -92,9 +109,10 @@ export function App() {
                   Cadastrar Nível
                 </Button>
               </DialogTrigger>
-              <CreateLevelDialog />
+              <CreateLevelDialog  setLevelState={setShouldFetchLevels} />
             </Dialog>
-
+          </div>
+          <div className="flex items-center gap-2">
             <Dialog>
               <DialogTrigger asChild>
                 <Button>
@@ -102,7 +120,7 @@ export function App() {
                   Cadastrar Desenvolvedor
                 </Button>
               </DialogTrigger>
-              <CreateDeveloperDialog />
+              <CreateDeveloperDialog setState={setTableState} setLevelState={setShouldFetchLevels} levels={levels} />
             </Dialog>
           </div>
         </div>
@@ -115,7 +133,6 @@ export function App() {
               <TableHead>Idade</TableHead>
               <TableHead>Sexo</TableHead>
               <TableHead>Hobby</TableHead>
-              <TableHead></TableHead>
             </TableHeader>
             <TableBody>
               {developers.map((developer) => {
@@ -132,17 +149,9 @@ export function App() {
                         <TableCell>{developer.idade}</TableCell>
                         <TableCell>{developer.sexo}</TableCell>
                         <TableCell>{developer.hobby}</TableCell>
-                        <TableCell>
-                          <Button
-                            variant="ghost"
-                            className="hover:bg-transparent"
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </TableCell>
                       </TableRow>
                     </DialogTrigger>
-                    <EditDeveloper developer={developer} />
+                    <EditDeveloper developer={developer} setState={setTableState} setLevelState={setShouldFetchLevels} levels={levels} />
                   </Dialog>
                 );
               })}

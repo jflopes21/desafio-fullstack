@@ -9,33 +9,39 @@ import {
 import { Label } from "./ui/label";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 
-export function CreateLevelDialog() {
-  const [nivel, setNivel] = useState("");
+const createLevelSchema = z.object({
+  nivel: z.string(),
+});
 
-  //  const handleSubmitLevel = async () => {
-  //   const formLevelData = {
-  //     nivel: nivel,
-  //   };
+type CreateLevelSchema = z.infer<typeof createLevelSchema>;
 
-  //   const response = await fetch("http://localhost:3333/api/niveis", {
-  //     method: "POST",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //     body: JSON.stringify(formLevelData),
-  //   });
+interface ChildProps {
+  setLevelState: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-  //   if (response.ok) {
-  //     console.log("Nível cadastrado com sucesso!");
-  //     toast("Event has been created.");
-  //     setShouldFetchLevels(true);
-  //   } else {
-  //     const errorData = await response.json();
-  //     setError(errorData.message);
-  //   }
-  // };
+export function CreateLevelDialog({setLevelState} : ChildProps) {
+  const { register, handleSubmit } = useForm<CreateLevelSchema>({
+    resolver: zodResolver(createLevelSchema),
+  });
+
+  async function handleCreateLevel(data: CreateLevelSchema) {
+    const response = await fetch("http://localhost:3333/api/niveis", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    if (response.ok) {
+      setLevelState(true);
+      console.log("Nível cadastrado com sucesso!");
+    }
+  }
 
   return (
     <DialogContent>
@@ -44,15 +50,10 @@ export function CreateLevelDialog() {
         <DialogDescription>Criar novo nível</DialogDescription>
       </DialogHeader>
 
-      <form className="space-y-8">
+      <form onSubmit={handleSubmit(handleCreateLevel)} className="space-y-8">
         <div className="grid grid-cols-4 items-center text-right gap-3">
           <Label htmlFor="nivel">Nível</Label>
-          <Input
-            className="col-span-3"
-            id="nivel"
-            value={nivel}
-            onChange={(e) => setNivel(e.target.value)}
-          />
+          <Input className="col-span-3" {...register("nivel")} />
         </div>
 
         <DialogFooter>
@@ -62,7 +63,7 @@ export function CreateLevelDialog() {
             </Button>
           </DialogClose>
           <DialogClose asChild>
-            <Button>Salvar</Button>
+            <Button type="submit">Salvar</Button>
           </DialogClose>
         </DialogFooter>
       </form>

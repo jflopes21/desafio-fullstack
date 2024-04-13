@@ -3,6 +3,8 @@ import {
   DialogTitle,
   DialogDescription,
   DialogClose,
+  DialogHeader,
+  DialogFooter,
 } from "./ui/dialog";
 import { Label } from "./ui/label";
 import {
@@ -13,38 +15,86 @@ import {
   SelectItem,
 } from "./ui/select";
 import { Button } from "./ui/button";
-import { DialogHeader, DialogFooter } from "./ui/dialog";
 import { Input } from "./ui/input";
-import { useEffect, useState } from "react";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Form, FormField, FormItem, FormControl } from "./ui/form";
 
 interface Level {
   id: string;
   nivel: string;
 }
 
-export function EditLevelDialog() {
-  const [levels, setLevels] = useState<Level[]>([]);
+interface ChildProps {
+  setState: React.Dispatch<React.SetStateAction<boolean>>;
+  setLevelState: React.Dispatch<React.SetStateAction<boolean>>;
+  levels: Level[];
+}
 
-  //   useEffect(() => {
-  //     if (shouldFetchLevels) {
-  //       const url = new URL("http://localhost:3333/api/niveis");
-  //       fetch(url)
-  //         .then((response) => response.json())
-  //         .then((data) => {
-  //           setLevels(data);
-  //           setShouldFetchLevels(false);
-  //         });
-  //     }
-  //   }, [shouldFetchLevels]);
+const editLevelSchema = z.object({
+  nivelId: z.number(),
+  nivel: z.string().optional(),
+});
 
-  useEffect(() => {
-    const url = new URL("http://localhost:3333/api/niveis");
-    fetch(url)
-      .then((response) => response.json())
-      .then((data) => {
-        setLevels(data);
-      });
-  }, []);
+export function EditLevelDialog({setState, setLevelState, levels}: ChildProps) {
+
+  const form = useForm<z.infer<typeof editLevelSchema>>({
+    resolver: zodResolver(editLevelSchema),
+  });
+
+  async function handleEditLevel(data: z.infer<typeof editLevelSchema>) {
+    const nivelId = data.nivelId
+    if(nivelId === undefined) {
+      console.log('Nível que será editado não foi preenchido')
+      return
+    }
+
+    const url = `http://localhost:3333/api/niveis/${nivelId}`
+    if(data.nivel === '' || data.nivel === undefined) {
+      console.log('Nível não foi preenchido')
+      return
+    }
+
+    const requestData = Object.fromEntries(
+      Object.entries(data).filter(([key, ]) => key !== 'nivelId')
+    );
+
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(requestData),
+    });
+
+    if (response.ok) {
+      setLevelState(true);
+      setState(true);
+      console.log("Desenvolvedor editado com sucesso!");
+    } else {
+      console.log("error");
+    }
+  }
+
+  async function handleDeleteDeveloper(data: z.infer<typeof editLevelSchema>){
+    const nivelId = data.nivelId;
+    console.log(nivelId)
+    const url = `http://localhost:3333/api/niveis/${nivelId}`
+    const response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.ok) {
+      setLevelState(true);
+      console.log("Nível excluído com sucesso!");
+    } else {
+      console.log("error");
+    }
+  }
 
   return (
     <DialogContent>
@@ -54,44 +104,81 @@ export function EditLevelDialog() {
           Edite ou exclua um nível existente
         </DialogDescription>
       </DialogHeader>
-      <form className="space-y-8">
-        <div className="grid grid-cols-4 items-center text-right gap-3">
-          <Label htmlFor="nivel">Nível</Label>
-          <Select>
-            <SelectTrigger className="col-span-2">
-              <SelectValue placeholder="Selecione o nível" />
-            </SelectTrigger>
-            <SelectContent>
-              {levels.map((level) => {
-                return (
-                  <SelectItem key={level.id} value={level.nivel}>
-                    {level.nivel}
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="grid grid-cols-4 items-center text-right gap-3">
-          <Label htmlFor="nivel">Novo valor</Label>
-          <Input className="col-span-2" id="nivel" />
-        </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button type="button" variant="outline">
-              Cancelar
-            </Button>
-          </DialogClose>
-          <DialogClose asChild>
-            <Button type="button" variant="destructive">
-              Excluir
-            </Button>
-          </DialogClose>
-          <DialogClose>
-            <Button type="submit">Editar</Button>
-          </DialogClose>
-        </DialogFooter>
-      </form>
+
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(handleEditLevel)}
+          className="space-y-6"
+        >
+          <FormField
+            control={form.control}
+            name="nivelId"
+            render={({ field }) => (
+              <FormItem>
+                <div className="grid grid-cols-4 items-center text-right gap-3">
+                  <Label>Nível</Label>
+                  <Select
+                    onValueChange={(selectedLevel) => {
+                      const selected = levels.find(
+                        (level) => level.nivel === selectedLevel
+                      );
+                      if (selected) {
+                        field.onChange(selected.id);
+                      }
+                    }}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="col-span-2">
+                        <SelectValue placeholder="Selecione um nível" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {levels.map((level) => {
+                        return (
+                          <SelectItem key={level.id} value={level.nivel}>
+                            {level.nivel}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="nivel"
+            render={({ field }) => (
+              <FormItem>
+                <div className="grid grid-cols-4 items-center text-right gap-3">
+                  <Label>Novo valor</Label>
+                  <Input
+                    placeholder="Digite o novo nome do nível"
+                    className="col-span-2"
+                    {...field}
+                  />
+                </div>
+              </FormItem>
+            )}
+          />
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Cancelar
+              </Button>
+            </DialogClose>
+            <DialogClose asChild>
+              <Button type="submit" variant="destructive" onClick={form.handleSubmit(handleDeleteDeveloper)}>
+                Excluir
+              </Button>
+            </DialogClose>
+            <DialogClose asChild>
+              <Button type="submit">Editar</Button>
+            </DialogClose>
+          </DialogFooter>
+        </form>
+      </Form>
     </DialogContent>
   );
 }
