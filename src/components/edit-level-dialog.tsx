@@ -38,31 +38,34 @@ const editLevelSchema = z.object({
   nivel: z.string().optional(),
 });
 
-export function EditLevelDialog({setState, setLevelState, levels}: ChildProps) {
-
+export function EditLevelDialog({
+  setState,
+  setLevelState,
+  levels,
+}: ChildProps) {
   const form = useForm<z.infer<typeof editLevelSchema>>({
     resolver: zodResolver(editLevelSchema),
   });
 
   async function handleEditLevel(data: z.infer<typeof editLevelSchema>) {
-    const nivelId = data.nivelId
-    if(nivelId === undefined) {
-      console.log('Nível que será editado não foi preenchido')
-      return
+    const nivelId = data.nivelId;
+    if (nivelId === undefined) {
+      toast.warning("Nível que será editado não foi preenchido");
+      return;
     }
 
-    const url = `http://localhost:3333/api/niveis/${nivelId}`
-    if(data.nivel === '' || data.nivel === undefined) {
-      console.log('Nível não foi preenchido')
-      return
+    const url = `http://localhost:3333/api/niveis/${nivelId}`;
+    if (data.nivel === "" || data.nivel === undefined) {
+      toast.warning("Nível não foi preenchido");
+      return;
     }
 
-    const requestData = Object.fromEntries(
-      Object.entries(data).filter(([key, ]) => key !== 'nivelId')
+    const requestData: any = Object.fromEntries(
+      Object.entries(data).filter(([key]) => key !== "nivelId")
     );
 
     const response = await fetch(url, {
-      method: 'PUT',
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
@@ -79,12 +82,11 @@ export function EditLevelDialog({setState, setLevelState, levels}: ChildProps) {
     }
   }
 
-  async function handleDeleteDeveloper(data: z.infer<typeof editLevelSchema>){
+  async function handleDeleteDeveloper(data: z.infer<typeof editLevelSchema>) {
     const nivelId = data.nivelId;
-    console.log(nivelId)
-    const url = `http://localhost:3333/api/niveis/${nivelId}`
+    const url = `http://localhost:3333/api/niveis/${nivelId}`;
     const response = await fetch(url, {
-      method: 'DELETE',
+      method: "DELETE",
       headers: {
         "Content-Type": "application/json",
       },
@@ -94,6 +96,7 @@ export function EditLevelDialog({setState, setLevelState, levels}: ChildProps) {
     if (response.ok) {
       setLevelState(true);
       toast.success(jsonResponse.message);
+      return
     } else {
       toast.error(jsonResponse.message);
     }
@@ -120,6 +123,7 @@ export function EditLevelDialog({setState, setLevelState, levels}: ChildProps) {
               <FormItem>
                 <div className="grid grid-cols-4 items-center text-right gap-3">
                   <Label>Nível</Label>
+                  {levels && levels.length > 0 ? (
                   <Select
                     onValueChange={(selectedLevel) => {
                       const selected = levels.find(
@@ -145,6 +149,14 @@ export function EditLevelDialog({setState, setLevelState, levels}: ChildProps) {
                       })}
                     </SelectContent>
                   </Select>
+                  ) : (
+                    <Input
+                    disabled
+                    value={''}
+                    placeholder="Não existem níveis cadastrados!"
+                    className="col-span-2"
+                  />
+                  )}
                 </div>
               </FormItem>
             )}
@@ -172,7 +184,11 @@ export function EditLevelDialog({setState, setLevelState, levels}: ChildProps) {
               </Button>
             </DialogClose>
             <DialogClose asChild>
-              <Button type="submit" variant="destructive" onClick={form.handleSubmit(handleDeleteDeveloper)}>
+              <Button
+                type="submit"
+                variant="destructive"
+                onClick={form.handleSubmit(handleDeleteDeveloper)}
+              >
                 Excluir
               </Button>
             </DialogClose>
