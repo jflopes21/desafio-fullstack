@@ -21,6 +21,7 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem } from "./ui/form";
+import { toast } from "sonner";
 
 interface Developer {
   id: string;
@@ -114,12 +115,13 @@ export function EditDeveloper({ developer, setState, setLevelState, levels }: Ed
       body: JSON.stringify(requestData),
     });
 
+    const jsonResponse = await response.json();
     if (response.ok) {
-      console.log("Desenvolvedor editado com sucesso!");
       setState(true);
       setLevelState(true);
+      toast.success(jsonResponse.message);
     } else {
-      console.log("error");
+      toast.error(jsonResponse.message);
     }
   }
 
@@ -133,11 +135,12 @@ export function EditDeveloper({ developer, setState, setLevelState, levels }: Ed
       },
     });
 
+    const jsonResponse = await response.json();
     if (response.ok) {
       setState(true);
-      console.log("Desenvolvedor excluído com sucesso!");
+      toast.success(jsonResponse.message);
     } else {
-      console.log("error");
+      toast.error(jsonResponse.message);
     }
   }
 

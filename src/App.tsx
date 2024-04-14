@@ -16,6 +16,7 @@ import { EditLevelDialog } from "./components/edit-level-dialog";
 import { CreateLevelDialog } from "./components/create-level-dialog";
 import { CreateDeveloperDialog } from "./components/create-developer-dialog";
 import { EditDeveloper } from "./components/edit-developer-dialog";
+import { Toaster } from "@/components/ui/sonner"
 
 interface Developer {
   id: string;
@@ -84,6 +85,7 @@ export function App() {
 
   return (
     <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+    <Toaster richColors/>
       <div className="p-6 max-w-6xl mx-auto space-y-4">
         <div className="flex justify-end">
           <ModeToggle />

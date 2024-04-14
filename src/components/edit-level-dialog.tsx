@@ -20,6 +20,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Form, FormField, FormItem, FormControl } from "./ui/form";
+import { toast } from "sonner";
 
 interface Level {
   id: string;
@@ -68,12 +69,13 @@ export function EditLevelDialog({setState, setLevelState, levels}: ChildProps) {
       body: JSON.stringify(requestData),
     });
 
+    const jsonResponse = await response.json();
     if (response.ok) {
       setLevelState(true);
       setState(true);
-      console.log("Desenvolvedor editado com sucesso!");
+      toast.success(jsonResponse.message);
     } else {
-      console.log("error");
+      toast.error(jsonResponse.message);
     }
   }
 
@@ -88,11 +90,12 @@ export function EditLevelDialog({setState, setLevelState, levels}: ChildProps) {
       },
     });
 
+    const jsonResponse = await response.json();
     if (response.ok) {
       setLevelState(true);
-      console.log("Nível excluído com sucesso!");
+      toast.success(jsonResponse.message);
     } else {
-      console.log("error");
+      toast.error(jsonResponse.message);
     }
   }
 

@@ -21,9 +21,10 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem } from "./ui/form";
+import { toast } from "sonner";
 
 const createDeveloperSchema = z.object({
-  nome: z.string(),
+  nome: z.string().nonempty({ message: "O nome é obrigatório" }),
   nivelId: z.number(),
   sexo: z.string(),
   datanascimento: z.string(),
@@ -41,8 +42,12 @@ interface ChildProps {
   levels: Level[];
 }
 
-export function CreateDeveloperDialog({setState, setLevelState, levels}: ChildProps) {
-  function formatDate(inputDate: string) : string {
+export function CreateDeveloperDialog({
+  setState,
+  setLevelState,
+  levels,
+}: ChildProps) {
+  function formatDate(inputDate: string): string {
     const [day, month, year] = inputDate.split("/");
     if (day && month && year) {
       const formattedDate = `${year}-${month.padStart(2, "0")}-${day.padStart(
@@ -61,7 +66,9 @@ export function CreateDeveloperDialog({setState, setLevelState, levels}: ChildPr
     resolver: zodResolver(createDeveloperSchema),
   });
 
-  async function handleCreateDeveloper(data: z.infer<typeof createDeveloperSchema>) {
+  async function handleCreateDeveloper(
+    data: z.infer<typeof createDeveloperSchema>
+  ) {
     const response = await fetch("http://localhost:3333/api/desenvolvedores", {
       method: "POST",
       headers: {
@@ -70,12 +77,14 @@ export function CreateDeveloperDialog({setState, setLevelState, levels}: ChildPr
       body: JSON.stringify(data),
     });
 
+    const jsonResponse = await response.json();
     if (response.ok) {
       setState(true);
       setLevelState(true);
-      console.log("Desenvolvedor cadastrado com sucesso!");
+      toast.success(jsonResponse.message);
+    } else {
+      toast.error(jsonResponse.message);
     }
-    console.log(data);
   }
 
   return (
@@ -85,7 +94,10 @@ export function CreateDeveloperDialog({setState, setLevelState, levels}: ChildPr
         <DialogDescription>Criar um novo desenvolvedor</DialogDescription>
       </DialogHeader>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleCreateDeveloper)} className="space-y-6">
+        <form
+          onSubmit={form.handleSubmit(handleCreateDeveloper)}
+          className="space-y-6"
+        >
           <FormField
             control={form.control}
             name="nome"
@@ -154,7 +166,7 @@ export function CreateDeveloperDialog({setState, setLevelState, levels}: ChildPr
                       const inputDate = e.target.value;
                       const formattedDate = formatDate(inputDate);
                       setFormattedDate(inputDate);
-                      field.onChange(formattedDate); 
+                      field.onChange(formattedDate);
                     }}
                   />
                 </div>

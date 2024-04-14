@@ -12,6 +12,7 @@ import { Input } from "./ui/input";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 
 const createLevelSchema = z.object({
   nivel: z.string(),
@@ -23,7 +24,7 @@ interface ChildProps {
   setLevelState: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-export function CreateLevelDialog({setLevelState} : ChildProps) {
+export function CreateLevelDialog({ setLevelState }: ChildProps) {
   const { register, handleSubmit } = useForm<CreateLevelSchema>({
     resolver: zodResolver(createLevelSchema),
   });
@@ -37,9 +38,12 @@ export function CreateLevelDialog({setLevelState} : ChildProps) {
       body: JSON.stringify(data),
     });
 
+    const jsonResponse = await response.json();
     if (response.ok) {
       setLevelState(true);
-      console.log("Nível cadastrado com sucesso!");
+      toast.success(jsonResponse.message);
+    } else {
+      toast.error(jsonResponse.message);
     }
   }
 
