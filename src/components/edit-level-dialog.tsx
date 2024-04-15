@@ -122,7 +122,7 @@ export function EditLevelDialog({
             render={({ field }) => (
               <FormItem>
                 <div className="grid grid-cols-4 items-center text-right gap-3">
-                  <Label>Nível</Label>
+                  <Label htmlFor="level">Nível</Label>
                   {levels && levels.length > 0 ? (
                   <Select
                     onValueChange={(selectedLevel) => {
@@ -135,7 +135,7 @@ export function EditLevelDialog({
                     }}
                   >
                     <FormControl>
-                      <SelectTrigger className="col-span-2">
+                      <SelectTrigger className="col-span-2" id="level">
                         <SelectValue placeholder="Selecione um nível" />
                       </SelectTrigger>
                     </FormControl>
@@ -155,6 +155,7 @@ export function EditLevelDialog({
                     value={''}
                     placeholder="Não existem níveis cadastrados!"
                     className="col-span-2"
+                    id="level"
                   />
                   )}
                 </div>
@@ -167,11 +168,12 @@ export function EditLevelDialog({
             render={({ field }) => (
               <FormItem>
                 <div className="grid grid-cols-4 items-center text-right gap-3">
-                  <Label>Novo valor</Label>
+                  <Label htmlFor="newLevelValue">Novo valor</Label>
                   <Input
                     placeholder="Digite o novo nome do nível"
                     className="col-span-2"
                     {...field}
+                    id="newLevelValue"
                   />
                 </div>
               </FormItem>

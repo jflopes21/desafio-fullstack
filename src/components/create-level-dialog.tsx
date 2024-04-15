@@ -56,8 +56,8 @@ export function CreateLevelDialog({ setLevelState }: ChildProps) {
 
       <form onSubmit={handleSubmit(handleCreateLevel)} className="space-y-8">
         <div className="grid grid-cols-4 items-center text-right gap-3">
-          <Label htmlFor="nivel">Nível</Label>
-          <Input className="col-span-3" {...register("nivel")} />
+          <Label htmlFor="level">Nível</Label>
+          <Input id="level" className="col-span-3" {...register("nivel")} />
         </div>
 
         <DialogFooter>

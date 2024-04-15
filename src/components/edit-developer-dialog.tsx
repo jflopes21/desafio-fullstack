@@ -162,11 +162,12 @@ export function EditDeveloper({ developer, setState, setLevelState, levels }: Ed
             render={({ field }) => (
               <FormItem>
                 <div className="grid grid-cols-4 items-center text-right gap-3">
-                  <Label>Nome</Label>
+                  <Label htmlFor="name">Nome</Label>
                   <Input
                     placeholder={developer.nome}
                     className="col-span-3"
                     {...field}
+                    id="name"
                   />
                 </div>
               </FormItem>
@@ -178,7 +179,7 @@ export function EditDeveloper({ developer, setState, setLevelState, levels }: Ed
             render={({ field }) => (
               <FormItem>
                 <div className="grid grid-cols-4 items-center text-right gap-3">
-                  <Label>Nível</Label>
+                  <Label htmlFor="level">Nível</Label>
                   <Select
                     onValueChange={(selectedLevel) => {
                       const selected = levels.find(
@@ -190,7 +191,7 @@ export function EditDeveloper({ developer, setState, setLevelState, levels }: Ed
                     }}
                   >
                     <FormControl>
-                      <SelectTrigger className="col-span-2">
+                      <SelectTrigger className="col-span-2" id="level">
                         <SelectValue placeholder={developer.nivel} />
                       </SelectTrigger>
                     </FormControl>
@@ -214,8 +215,9 @@ export function EditDeveloper({ developer, setState, setLevelState, levels }: Ed
             render={({ field }) => (
               <FormItem>
                 <div className="grid grid-cols-4 items-center text-right gap-3">
-                  <Label>Nascimento</Label>
+                  <Label htmlFor="birthDate">Nascimento</Label>
                   <Input
+                    id="birthDate"
                     placeholder={formattedDateOfBirth}
                     className="col-span-2"
                     {...field}
@@ -237,13 +239,13 @@ export function EditDeveloper({ developer, setState, setLevelState, levels }: Ed
             render={({ field }) => (
               <FormItem>
                 <div className="grid grid-cols-4 items-center text-right gap-3">
-                  <Label>Sexo</Label>
+                  <Label htmlFor="gender">Sexo</Label>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
-                      <SelectTrigger className="col-span-2">
+                      <SelectTrigger className="col-span-2" id="gender">
                         <SelectValue
                           placeholder={
                             developer.sexo === "F" ? "Feminino" : "Masculino"
@@ -266,8 +268,9 @@ export function EditDeveloper({ developer, setState, setLevelState, levels }: Ed
             render={({ field }) => (
               <FormItem>
                 <div className="grid grid-cols-4 items-center text-right gap-3">
-                  <Label>Hobby</Label>
+                  <Label htmlFor="hobby">Hobby</Label>
                   <Input
+                    id="hobby"
                     placeholder={developer.hobby}
                     className="col-span-2"
                     {...field}

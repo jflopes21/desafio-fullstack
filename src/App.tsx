@@ -38,7 +38,7 @@ export function App() {
   const [developers, setDevelopers] = useState<Developer[]>([]);
   const [tableState, setTableState] = useState<boolean>(true);
   const tableStateRef = useRef(false);
-
+  
   useEffect(() => {
     if (tableState && !tableStateRef.current) {
       const url = new URL("http://localhost:3333/api/desenvolvedores");
@@ -132,7 +132,7 @@ export function App() {
 
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline">
+                <Button variant="secondary">
                   <Plus className="w-4 h-4 mr-2" />
                   Cadastrar Nível
                 </Button>
@@ -165,7 +165,7 @@ export function App() {
           </div>
         </div>
         <div className="border rounded-lg p-2">
-          <Table>
+          <Table data-testid="table">
             <TableHeader>
               <TableHead>ID</TableHead>
               <TableHead>Nome</TableHead>
